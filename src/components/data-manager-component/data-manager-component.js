@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-
+import "../table-component/table-component.js";
 class DataManagerComponent  extends LitElement {
 
   static get styles() {
@@ -13,16 +13,19 @@ class DataManagerComponent  extends LitElement {
   static get properties() {
     return {
         dataUrl: {type: String},
-        dataRecords: {type: Array},
-        id: {type: String}
+        dataRecords: {type: String},
+        dataTest: {type: String},
+        dataTestArray: {type: Array},
+        id: {type: Array}
     };
   }
 
   constructor() {
     super();
     this.dataUrl="https://api.datos.gob.mx/v2/Records";
-    this.dataRecords=[];
-    this.id="";
+    this.dataRecords="";
+    this.id=[];
+    this.dataTestArray=[];
   }
 
   connection = () =>{
@@ -30,18 +33,27 @@ class DataManagerComponent  extends LitElement {
     fetch(this.dataUrl)
     .then(res => res.json())
     .then(data => {
-      for(i=0; i < 10; i++){
-          this.id+=(JSON.stringify(data.results[i]["_id"]).slice(1,-1) + " , ");
-        }
-    }) 
+        this.dataRecords = data.results;
+        /*En este momento se utilizo unicamente un registro de todos los que se encuentran en el JSON regresado
+          sin embargo ya que se comprobo que el modelo empleado para la representacion de este solo bastaria con
+          agregar una funcion extra que vaya realizando los cambios de numero en el registro para asi poder generar
+          una tabla del mismo tipo para cada registro en el apartado de results.
+        */
+        this.dataTest = this.dataRecords[1].releases[0].contracts[0].implementation.budgetBreakdown[0].budgetClassification;
+      })
 
   }
+
+  firstUpdated(){
+    this.connection();
+  }
+
   render() {
-    
+
     return html`
-      <button @click=${this.connection()} > Crear conexión </button>
-      <p> Esto es un ejemplo:  ${this.id} </p>
-    `;
+      <table-component .data=${this.dataTest}></table-component>
+    `
+    ;
   }
 }
 
